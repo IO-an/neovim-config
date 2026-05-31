@@ -71,9 +71,21 @@ vim.api.nvim_create_autocmd('CursorHold', {
   end,
 })
 
--- Универсальные настройки для всех LSP-плавающих окон (ховер, сигнатура)
-vim.lsp.handlers['textDocument/hover'] = vim.lsp.handlers.hover({ border = 'single' })
-vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.handlers.signature_help({ border = 'single' })
+-- Тонкая рамка для всплывающего ховера
+local orig_hover = vim.lsp.handlers.hover
+vim.lsp.handlers.hover = function(...)
+  local config = select(4, ...) or {}
+  config.border = 'single'
+  return orig_hover(...)
+end
+
+-- Тонкая рамка для всплывающей сигнатуры (в дополнение к lsp_signature)
+local orig_signature = vim.lsp.handlers.signature_help
+vim.lsp.handlers.signature_help = function(...)
+  local config = select(4, ...) or {}
+  config.border = 'single'
+  return orig_signature(...)
+end
 
 -- Автосоздание родительской папки при сохранении нового файла
 vim.api.nvim_create_autocmd('BufWritePre', {
