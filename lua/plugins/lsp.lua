@@ -15,7 +15,7 @@ return {
       'pyright', 'gopls', 'rust_analyzer', 'bashls', 'jsonls',
       'yamlls', 'ts_ls',
       'eslint',
-      'stylelint_lsp',
+      'stylelint-language-server',
     }
     require('mason-lspconfig').setup({ ensure_installed = servers })
 
