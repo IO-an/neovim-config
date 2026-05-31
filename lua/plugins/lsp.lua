@@ -11,11 +11,9 @@ return {
     require('mason').setup()
 
     local servers = {
-      'cssls', 'html', 'clangd', 'glsl_analyzer', 'ruby_lsp',
+      'cssls', 'html', 'clangd', 'glsl_analyzer', 'eslint',
       'pyright', 'gopls', 'rust_analyzer', 'bashls', 'jsonls',
-      'yamlls', 'ts_ls',
-      'eslint',
-      'stylelint-language-server',
+      'yamlls', 'ts_ls', 'stylelint_lsp',
     }
     require('mason-lspconfig').setup({ ensure_installed = servers })
 

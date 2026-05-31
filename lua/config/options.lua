@@ -29,6 +29,9 @@ vim.opt.showcmd = true
 -- Отключаем перенос строк
 vim.opt.wrap = false
 
+-- Отключаем варнинги
+vim.g.deprecation_warnings = false
+
 -- Полное отключение временных файлов
 vim.opt.swapfile = false          -- никаких *.swp
 vim.opt.backup = false            -- никаких *~
