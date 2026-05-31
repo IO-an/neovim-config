@@ -63,28 +63,24 @@ vim.api.nvim_create_autocmd('CursorHold', {
     vim.diagnostic.open_float(nil, {
       focus = false,
       scope = 'line',
-      border = 'single',       -- тонкая рамка, как в VSCode
-      header = '',             -- без заголовка
-      prefix = '',             -- без префикса
-      source = true,           -- показываем источник (eslint, ts_ls)
+      border = 'single',
+      header = '',
+      prefix = '',
+      source = true,
     })
   end,
 })
 
--- Тонкая рамка для всплывающего ховера
-local orig_hover = vim.lsp.handlers.hover
-vim.lsp.handlers.hover = function(...)
-  local config = select(4, ...) or {}
-  config.border = 'single'
-  return orig_hover(...)
+-- Тонкая рамка для ховера (K)
+vim.lsp.handlers['textDocument/hover'] = function(err, result, ctx, config)
+  config = vim.tbl_deep_extend('force', config or {}, { border = 'single' })
+  vim.lsp.handlers.hover(err, result, ctx, config)
 end
 
--- Тонкая рамка для всплывающей сигнатуры (в дополнение к lsp_signature)
-local orig_signature = vim.lsp.handlers.signature_help
-vim.lsp.handlers.signature_help = function(...)
-  local config = select(4, ...) or {}
-  config.border = 'single'
-  return orig_signature(...)
+-- Тонкая рамка для сигнатуры (lsp_signature автоматически переопределяет, но на всякий случай)
+vim.lsp.handlers['textDocument/signatureHelp'] = function(err, result, ctx, config)
+  config = vim.tbl_deep_extend('force', config or {}, { border = 'single' })
+  vim.lsp.handlers.signature_help(err, result, ctx, config)
 end
 
 -- Автосоздание родительской папки при сохранении нового файла
