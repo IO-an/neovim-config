@@ -1,36 +1,37 @@
--- Установка и настройка LSP-серверов через Mason + встроенный клиент Neovim.
+-- Настройка LSP: установка серверов через Mason и интеграция через nvim-lspconfig.
+-- Используется nvim-lspconfig с capabilities от cmp. Депрекейшн-сообщения подавлены.
 return {
-  'williamboman/mason.nvim',
-  event = 'VeryLazy',
-  opts = {
-    -- Серверы, которые Mason установит автоматически
-    ensure_installed = {
-      'cssls', 'html', 'clangd', 'glsl_analyzer', 'ruby_lsp',
-      'pyright', 'gopls', 'rust_analyzer', 'bashls', 'jsonls',
-      'yamlls', 'ts_ls', 'eslint', 'stylelint_lsp',
-    },
+  'neovim/nvim-lspconfig',
+  event = { 'BufReadPre', 'BufNewFile' },
+  dependencies = {
+    'williamboman/mason.nvim',
+    'williamboman/mason-lspconfig.nvim',
   },
-  config = function(plugin, opts)
-    require('mason').setup(opts)
+  config = function()
+    require('mason').setup()
 
-    -- Передаём capabilities от nvim-cmp глобально
-    local capabilities = require('cmp_nvim_lsp').default_capabilities()
-    vim.lsp.config['*'].capabilities = capabilities
-
-    -- Все серверы (включая те, что могут быть установлены вручную)
     local servers = {
       'cssls', 'html', 'clangd', 'glsl_analyzer', 'ruby_lsp',
       'pyright', 'gopls', 'rust_analyzer', 'bashls', 'jsonls',
-      'yamlls', 'ts_ls', 'eslint', 'stylelint_lsp',
-      'jdtls', 'csharp_ls', 'metals', 'pasls',
+      'yamlls', 'ts_ls',
+      'eslint',
+      'stylelint_lsp',
     }
+    require('mason-lspconfig').setup({ ensure_installed = servers })
 
-    -- Пытаемся включить LSP для каждого сервера
+    local capabilities = require('cmp_nvim_lsp').default_capabilities()
+    local lspconfig = require('lspconfig')
+
     for _, server in ipairs(servers) do
-      local ok, _ = pcall(vim.lsp.enable, server)
-      if not ok then
-        vim.notify('LSP server not found: ' .. server, vim.log.levels.WARN)
-      end
+      lspconfig[server].setup({ capabilities = capabilities })
+    end
+
+    -- Тяжёлые серверы, которые могут быть установлены вручную
+    local optional = { 'jdtls', 'csharp_ls', 'metals', 'pasls' }
+    for _, server in ipairs(optional) do
+      pcall(function()
+        lspconfig[server].setup({ capabilities = capabilities })
+      end)
     end
   end,
 }
