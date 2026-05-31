@@ -1,35 +1,37 @@
--- Настройка LSP: установка серверов через Mason и интеграция через nvim-lspconfig.
--- Используется nvim-lspconfig с capabilities от cmp. Депрекейшн-сообщения подавлены.
+-- Установка LSP-серверов через Mason и их настройка через встроенный API Neovim.
+-- Никаких депрекаций, всё по официальной документации 0.12+.
 return {
-  'neovim/nvim-lspconfig',
-  event = { 'BufReadPre', 'BufNewFile' },
-  dependencies = {
-    'williamboman/mason.nvim',
-    'williamboman/mason-lspconfig.nvim',
-  },
-  config = function()
-    require('mason').setup()
-
-    local servers = {
-      'cssls', 'html', 'clangd', 'glsl_analyzer', 'eslint',
+  'williamboman/mason.nvim',
+  event = 'VeryLazy',
+  opts = {
+    ensure_installed = {
+      'cssls', 'html', 'clangd', 'glsl_analyzer',
       'pyright', 'gopls', 'rust_analyzer', 'bashls', 'jsonls',
-      'yamlls', 'ts_ls', 'stylelint_lsp',
-    }
-    require('mason-lspconfig').setup({ ensure_installed = servers })
+      'yamlls', 'ts_ls', 'eslint', 'stylelint_lsp',
+    },
+  },
+  config = function(_, opts)
+    require('mason').setup(opts)
 
+    -- Передаём возможности автодополнения всем LSP-клиентам
     local capabilities = require('cmp_nvim_lsp').default_capabilities()
-    local lspconfig = require('lspconfig')
+    vim.lsp.config('*', { capabilities = capabilities })
 
+    -- Серверы, которые мы хотим запускать (Mason уже должен их установить)
+    local servers = {
+      'cssls', 'html', 'clangd', 'glsl_analyzer', 'pasls',
+      'pyright', 'gopls', 'rust_analyzer', 'bashls', 'jsonls',
+      'yamlls', 'ts_ls', 'eslint', 'stylelint_lsp',
+      'jdtls', 'csharp_ls', 'metals',
+    }
+
+    -- Включаем каждый сервер; если он не установлен, выведется предупреждение,
+    -- но Neovim продолжит работу.
     for _, server in ipairs(servers) do
-      lspconfig[server].setup({ capabilities = capabilities })
-    end
-
-    -- Тяжёлые серверы, которые могут быть установлены вручную
-    local optional = { 'jdtls', 'csharp_ls', 'metals', 'pasls' }
-    for _, server in ipairs(optional) do
-      pcall(function()
-        lspconfig[server].setup({ capabilities = capabilities })
-      end)
+      local ok, err = pcall(vim.lsp.enable, server)
+      if not ok then
+        vim.notify('LSP server not found: ' .. server, vim.log.levels.WARN)
+      end
     end
   end,
 }
