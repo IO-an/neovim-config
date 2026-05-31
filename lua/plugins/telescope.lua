@@ -3,7 +3,7 @@
 return {
   'nvim-telescope/telescope.nvim',
   dependencies = { 'nvim-lua/plenary.nvim' },
-  cmd = 'Telescope',   -- загружается только при вызове команды Telescope
+  cmd = 'Telescope',
   keys = {
     { '<leader>ff', '<cmd>Telescope find_files<cr>', desc = 'Поиск файлов (игнорируя node_modules/.git)' },
     { '<leader>fg', '<cmd>Telescope live_grep<cr>',  desc = 'Поиск текста (игнорируя node_modules/.git)' },
@@ -19,13 +19,13 @@ return {
         layout_config = {
           width = 0.9,
           height = 0.8,
-          preview_width = 0.5,        -- превью занимает половину ширины окна
+          -- preview_width удалён, теперь ширина превью задаётся автоматически (50%)
         },
         preview = {
-          filesize_limit = 0.5,        -- максимальный размер файла для предпросмотра (МБ)
+          filesize_limit = 0.5,   -- максимальный размер файла для предпросмотра (МБ)
         },
         file_ignore_patterns = {
-          'node_modules', '.git/',    -- исключаем из поиска служебные каталоги
+          'node_modules', '.git/',
         },
       },
     })
